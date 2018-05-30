@@ -31,7 +31,6 @@ class PopulationService {
         String[] nextLine = reader.readNext()
         while ((nextLine = reader.readNext()) != null) {
             if (nextLine[0]) {
-                if ((nextLine[0] as long) < 11000L) println nextLine[0] + " " + nextLine[3]
                 PopulationDb populationDb = new PopulationDb(
                         cbsa: nextLine[0] as long,
                         mdiv: nextLine[1] ? nextLine[1] as long : null,
