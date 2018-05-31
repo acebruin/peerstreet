@@ -1,5 +1,6 @@
 package peerstreet
 
+import grails.converters.JSON
 import org.springframework.beans.factory.annotation.Autowired
 
 class PopulationController {
@@ -7,8 +8,14 @@ class PopulationController {
     @Autowired PopulationService populationService
 
     def index() {
-        populationService.test()
-        render 'Hello World'
+        def popIndex = populationService.fetchPopulationIndex(params.zip as long)
+
+        if (popIndex) {
+            render popIndex as JSON
+        }
+        else {
+            render status: 404, text: "Population record not found for zip: ${params.zip}"
+        }
     }
 
 }

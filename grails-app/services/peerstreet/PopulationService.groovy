@@ -7,11 +7,12 @@ import com.opencsv.CSVReader
 @Transactional
 class PopulationService {
 
-    private static final Integer INVALID_CBSA = 99999;
+    private static final Long INVALID_CBSA = 99999
+    private static final String MSA = 'Metropolitan Statistical Area'
 
     GrailsApplication grailsApplication
 
-    private Map<Integer, Integer> zipToCbsaMap = new HashMap<Integer, Integer>()
+    private Map<Long, Long> zipToCbsaMap = new HashMap<Long, Long>()
 
     void loadZipToCbsa() {
         File file = grailsApplication.mainContext.getResource('zip_to_cbsa.csv').file
@@ -20,7 +21,10 @@ class PopulationService {
         String[] nextLine = reader.readNext()
 
         while ((nextLine = reader.readNext()) != null) {
-            zipToCbsaMap.put(nextLine[0] as int, nextLine[1] as int)
+            Long cbsa = nextLine[1] as long
+            if (cbsa != INVALID_CBSA) {
+                zipToCbsaMap.put(nextLine[0] as long, nextLine[1] as long)
+            }
         }
     }
 
@@ -47,9 +51,27 @@ class PopulationService {
         }
     }
 
-    void test() {
-        println PopulationDb.count()
-        println PopulationDb.findAllByCbsa(10180)
+    Map<String, String> fetchPopulationIndex(Long zip) {
+        def result = [:]
+
+        Long cbsa = zipToCbsaMap.get(zip)
+        PopulationDb populationDb = PopulationDb.findByMdiv(cbsa)
+
+        if (populationDb) {
+            cbsa = populationDb.cbsa
+        }
+
+        populationDb = PopulationDb.findByCbsaAndLsad(cbsa, MSA)
+
+        if (populationDb) {
+            result.zip = zip
+            result.cbsa = populationDb.cbsa
+            result.name = populationDb.name
+            result.pop2014 = populationDb.popEstimate2014
+            result.pop2015 = populationDb.popEstimate2015
+        }
+
+        result
     }
 
 }
