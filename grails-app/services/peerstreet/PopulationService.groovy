@@ -55,6 +55,11 @@ class PopulationService {
         def result = [:]
 
         Long cbsa = zipToCbsaMap.get(zip)
+
+        if (!cbsa) {
+            return result
+        }
+
         PopulationDb populationDb = PopulationDb.findByMdiv(cbsa)
 
         if (populationDb) {
@@ -71,7 +76,7 @@ class PopulationService {
             result.pop2015 = populationDb.popEstimate2015
         }
 
-        result
+        return result
     }
 
 }
