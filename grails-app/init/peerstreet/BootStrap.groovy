@@ -8,6 +8,8 @@ class BootStrap {
         populationService.loadZipToCbsa()
         populationService.loadCbsaToMsa()
     }
+
     def destroy = {
     }
+
 }
